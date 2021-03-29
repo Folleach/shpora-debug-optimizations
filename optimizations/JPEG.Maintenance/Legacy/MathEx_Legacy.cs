@@ -1,17 +1,12 @@
 ﻿using System;
+using System.Linq;
 
-namespace JPEG.Utilities
+namespace JPEG.Maintenance.Legacy
 {
-    public static class MathEx
+    public class MathEx_Legacy
     {
         public static double Sum(int from, int to, Func<int, double> function)
-        {
-            var result = 0d;
-            for (; from < to; from++)
-                result += function(from);
-            
-            return result;
-        }
+            => Enumerable.Range(from, to - from).Sum(function);
 
         public static double SumByTwoVariables(int from1, int to1, int from2, int to2, Func<int, int, double> function)
             => Sum(from1, to1, x => Sum(from2, to2, y => function(x, y)));
