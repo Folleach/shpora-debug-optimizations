@@ -4,8 +4,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using JPEG.Images;
 using PixelFormat = JPEG.Images.PixelFormat;
+
+[assembly: InternalsVisibleTo("JPEG.Maintenance")]
 
 namespace JPEG
 {

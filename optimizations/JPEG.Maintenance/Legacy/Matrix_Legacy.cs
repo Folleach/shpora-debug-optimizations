@@ -1,16 +1,15 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
+﻿using System.Drawing;
+using JPEG.Images;
 
-namespace JPEG.Images
+namespace JPEG.Maintenance.Legacy
 {
-    class Matrix
+    class Matrix_Legacy
     {
         public readonly Pixel[,] Pixels;
         public readonly int Height;
         public readonly int Width;
 				
-        public Matrix(int height, int width)
+        public Matrix_Legacy(int height, int width)
         {
             Height = height;
             Width = width;
@@ -21,44 +20,25 @@ namespace JPEG.Images
                 Pixels[i, j] = new Pixel(0, 0, 0, PixelFormat.RGB);
         }
 
-        public static unsafe explicit operator Matrix(Bitmap bmp)
+        public static explicit operator Matrix_Legacy(Bitmap bmp)
         {
             var height = bmp.Height - bmp.Height % 8;
             var width = bmp.Width - bmp.Width % 8;
-            var matrix = new Matrix(height, width);
+            var matrix = new Matrix_Legacy(height, width);
 
-            var bitmapData = bmp.LockBits(
-                new Rectangle(0, 0, bmp.Width, bmp.Height),
-                ImageLockMode.ReadOnly,
-                System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-            
-            for (var j = 0; j < height; j++)
+            for(var j = 0; j < height; j++)
             {
-                var row = (byte*)bitmapData.Scan0 + (j * bitmapData.Stride);
-                for (var i = 0; i < width; i++)
+                for(var i = 0; i < width; i++)
                 {
-                    var b = *(row++);
-                    var g = *(row++);
-                    var r = *(row++);
-                    matrix.Pixels[j, i] = new Pixel(r, g, b, PixelFormat.RGB);
+                    var pixel = bmp.GetPixel(i, j);
+                    matrix.Pixels[j, i] = new Pixel(pixel.R, pixel.G, pixel.B, PixelFormat.RGB);
                 }
             }
-
-            // for(var j = 0; j < height; j++)
-            // {
-            //     for(var i = 0; i < width; i++)
-            //     {
-            //         var pixel = bmp.GetPixel(i, j);
-            //         matrix.Pixels[j, i] = new Pixel(pixel.R, pixel.G, pixel.B, PixelFormat.RGB);
-            //     }
-            // }
-            
-            bmp.UnlockBits(bitmapData);
 
             return matrix;
         }
 
-        public static explicit operator Bitmap(Matrix matrix)
+        public static explicit operator Bitmap(Matrix_Legacy matrix)
         {
             var bmp = new Bitmap(matrix.Width, matrix.Height);
 
