@@ -8,6 +8,7 @@ namespace JPEG.Maintenance.Benchmarks
     public class MathExBenchmarks
     {
         private const int N = 1000000;
+        private const int N_FromSumByTwoVariables = 100;
         
         [Benchmark]
         public void MathExLegacy_Sum()
@@ -19,6 +20,18 @@ namespace JPEG.Maintenance.Benchmarks
         public void MathEx_Sum()
         {
             MathEx.Sum(0, N, x => 0.5d);
+        }
+
+        [Benchmark]
+        public void MathExLegacy_SumByTwoVariables()
+        {
+            MathEx_Legacy.SumByTwoVariables(0, N_FromSumByTwoVariables, 0, N_FromSumByTwoVariables, (x, y) => 0.5d);
+        }
+        
+        [Benchmark]
+        public void MathEx_SumByTwoVariables()
+        {
+            MathEx.SumByTwoVariables(0, N_FromSumByTwoVariables, 0, N_FromSumByTwoVariables, (x, y) => 0.5d);
         }
     }
 }
