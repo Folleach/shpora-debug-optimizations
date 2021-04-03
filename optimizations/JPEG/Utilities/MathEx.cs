@@ -24,13 +24,15 @@ namespace JPEG.Utilities
 
             return result;
         }
-            
 
-        public static double LoopByTwoVariables(int from1, int to1, int from2, int to2, Action<int, int> function)
-            => Sum(from1, to1, x => Sum(from2, to2, y =>
+
+        public static void LoopByTwoVariables(int from1, int to1, int from2, int to2, Action<int, int> function)
+        {
+            for (; from1 < to1; from1++)
             {
-                function(x, y);
-                return 0;
-            }));
+                for (var i = from2; i < to2; i++)
+                    function(from1, i);
+            }
+        }
     }
 }

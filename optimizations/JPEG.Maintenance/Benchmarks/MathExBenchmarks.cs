@@ -8,7 +8,8 @@ namespace JPEG.Maintenance.Benchmarks
     public class MathExBenchmarks
     {
         private const int N = 1000000;
-        private const int N_FromSumByTwoVariables = 100;
+        private const int N_ForSumByTwoVariables = 100;
+        private const int N_ForLoopByTwoVariables = 1000;
         
         [Benchmark]
         public void MathExLegacy_Sum()
@@ -25,13 +26,29 @@ namespace JPEG.Maintenance.Benchmarks
         [Benchmark]
         public void MathExLegacy_SumByTwoVariables()
         {
-            MathEx_Legacy.SumByTwoVariables(0, N_FromSumByTwoVariables, 0, N_FromSumByTwoVariables, (x, y) => 0.5d);
+            MathEx_Legacy.SumByTwoVariables(0, N_ForSumByTwoVariables, 0, N_ForSumByTwoVariables, (x, y) => 0.5d);
         }
         
         [Benchmark]
         public void MathEx_SumByTwoVariables()
         {
-            MathEx.SumByTwoVariables(0, N_FromSumByTwoVariables, 0, N_FromSumByTwoVariables, (x, y) => 0.5d);
+            MathEx.SumByTwoVariables(0, N_ForSumByTwoVariables, 0, N_ForSumByTwoVariables, (x, y) => 0.5d);
+        }
+        
+        [Benchmark]
+        public void MathExLegacy_LoopByTwoVariables()
+        {
+            MathEx_Legacy.LoopByTwoVariables(0, N_ForLoopByTwoVariables, 0, N_ForLoopByTwoVariables, (x, y) =>
+            {
+            });
+        }
+        
+        [Benchmark]
+        public void MathEx_LoopByTwoVariables()
+        {
+            MathEx.LoopByTwoVariables(0, N_ForLoopByTwoVariables, 0, N_ForLoopByTwoVariables, (x, y) =>
+            {
+            });
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using FluentAssertions;
 using JPEG.Maintenance.Legacy;
 using JPEG.Utilities;
 using NUnit.Framework;
@@ -32,7 +33,7 @@ namespace JPEG.Maintenance.Tests
             Assert.AreEqual(legacy, current);
         }
         
-        [Test, ]
+        [Test, Combinatorial]
         public void MathEx_SumByTwoVariables_ShouldBeReturnSameValuesAsMathExLegacy(
             [Values(-10, -1, 0, 1, 7)] int from1,
             [Values(-10, -1, 0, 1, 7)] int to1,
@@ -53,6 +54,44 @@ namespace JPEG.Maintenance.Tests
             var legacy = MathEx_Legacy.SumByTwoVariables(from1, to1, from2, to2, Function);
             
             Assert.AreEqual(legacy, current);
+        }
+
+        [Test, Sequential]
+        public void MathEx_LoopByTwoVariables_ShouldBeReturnSameValuesAsMathExLegacy(
+            [Values(0, -9, 0, -7)] int from1,
+            [Values(3, -4, 0,  3)] int to1,
+            [Values(0, -9, 0, -7)] int from2,
+            [Values(3, -4, 0,  3)] int to2)
+        {
+            if (to1 - from1 < 0 || to2 - from2 < 0)
+                Assert.Fail("Invalid test. To should be more than from");
+            
+            var legacyCount = 0;
+            var count = 0;
+            
+            var legacyTable = new Dictionary<Tuple<int, int, int, int>, HashSet<Tuple<int, int>>>();
+            var table = new Dictionary<Tuple<int, int, int, int>, HashSet<Tuple<int, int>>>();
+
+            MathEx_Legacy.LoopByTwoVariables(from1, to1, from2, to2, (x, y) =>
+            {
+                legacyCount++;
+                var key = Tuple.Create(from1, to1, from2, to2);
+                if (!legacyTable.TryGetValue(key, out var set))
+                    legacyTable.Add(key, set = new HashSet<Tuple<int, int>>());
+                set.Add(Tuple.Create(x, y));
+            });
+
+            MathEx.LoopByTwoVariables(from1, to1, from2, to2, (x, y) =>
+            {
+                count++;
+                var key = Tuple.Create(from1, to1, from2, to2);
+                if (!table.TryGetValue(key, out var set))
+                    table.Add(key, set = new HashSet<Tuple<int, int>>());
+                set.Add(Tuple.Create(x, y));
+            });
+            
+            Assert.AreEqual(legacyCount, count);
+            table.Should().BeEquivalentTo(legacyTable);
         }
     }
 }
