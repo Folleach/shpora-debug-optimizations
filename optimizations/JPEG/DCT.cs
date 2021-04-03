@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using JPEG.Utilities;
 
 namespace JPEG
@@ -10,21 +11,22 @@ namespace JPEG
 			var height = input.GetLength(0);
 			var width = input.GetLength(1);
 			var coeffs = new double[width, height];
-
-			MathEx.LoopByTwoVariables(
-				0, width,
-				0, height,
-				(u, v) =>
+            
+			for (var u = 0; u < width; u++)
+			{
+				for (var v = 0; v < height; v++)
 				{
-					var sum = MathEx
-						.SumByTwoVariables(
-							0, width,
-							0, height,
-							(x, y) => BasisFunction(input[x, y], u, v, x, y, height, width));
+					var sum = 0d;
+					for (var x = 0; x < width; x++)
+					{
+						for (var y = 0; y < height; y++)
+							sum += BasisFunction(input[x, y], u, v, x, y, height, width);
+					}
 
 					coeffs[u, v] = sum * Beta(height, width) * Alpha(u) * Alpha(v);
-				});
-			
+				}
+			}
+
 			return coeffs;
 		}
 
@@ -44,7 +46,7 @@ namespace JPEG
 				}
 			}
 		}
-
+		
 		public static double BasisFunction(double a, double u, double v, double x, double y, int height, int width)
 		{
 			var b = Math.Cos(((2d * x + 1d) * u * Math.PI) / (2 * width));
