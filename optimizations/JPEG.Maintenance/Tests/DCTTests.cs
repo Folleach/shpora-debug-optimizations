@@ -28,5 +28,29 @@ namespace JPEG.Maintenance.Tests
 
             output.Should().BeEquivalentTo(legacyOutput);
         }
+
+        [Test]
+        public void DCT_IDCT2D_ShouldBeEquivalentToLegacyIDCT2D()
+        {
+            var input = new double[,]
+            {
+                {1, 2, 3, 4, 5, 6, 7, 8},
+                {1, 2, 3, 4, 5, 6, 7, 8},
+                {1, 2, 3, 4, 5, 6, 7, 8},
+                {1, 2, 3, 4, 5, 6, 7, 8},
+                {1, 2, 3, 4, 5, 6, 7, 8},
+                {1, 2, 3, 4, 5, 6, 7, 8},
+                {1, 2, 3, 4, 5, 6, 7, 8},
+                {1, 2, 3, 4, 5, 6, 7, 8},
+            };
+
+            var legacyOutput = new double[input.GetLength(0), input.GetLength(1)];
+            var output = new double[input.GetLength(0), input.GetLength(1)];
+            
+            DCT_Legacy.IDCT2D(input, legacyOutput);
+            DCT.IDCT2D(input, output);
+
+            output.Should().BeEquivalentTo(legacyOutput);
+        }
     }
 }
