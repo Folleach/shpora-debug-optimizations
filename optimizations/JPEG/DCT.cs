@@ -6,6 +6,8 @@ namespace JPEG
 {
 	public class DCT
 	{
+		private static readonly double OneDivSqrtTwo = 1 / Math.Sqrt(2);
+		
 		public static double[,] DCT2D(double[,] input)
 		{
 			var height = input.GetLength(0);
@@ -43,12 +45,13 @@ namespace JPEG
 					{
 						for (var v = 0; v < width; v++)
 						{
-							sum += BasisFunction(coeffs[u, v], u, v, x, y, width, height) *
-								Alpha(u) * Alpha(v);
+							sum += BasisFunction(coeffs[u, v], u, v, x, y, width, height)
+							       * (u == 0 ? OneDivSqrtTwo : 1)
+							       * (v == 0 ? OneDivSqrtTwo : 1);
 						}
 					}
 
-					output[x, y] = sum * Beta(width, height);
+					output[x, y] = sum * (1d / height + 1d / width);
 				}
 			}
 		}
