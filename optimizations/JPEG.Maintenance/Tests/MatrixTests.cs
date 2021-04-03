@@ -38,7 +38,16 @@ namespace JPEG.Maintenance.Tests
             var current = (Matrix) image;
             var legacy = (Matrix_Legacy) image;
 
-            current.Pixels.Should().BeEquivalentTo(legacy.Pixels);
+            Assert.AreEqual(legacy.Pixels.GetLength(0), current.Pixels.Length);
+            Assert.AreEqual(legacy.Pixels.GetLength(1), current.Pixels[0].Length);
+            
+            for (var x = 0; x < current.Height; x++)
+            {
+                for (var y = 0; y < current.Width; y++)
+                {
+                    Assert.AreEqual(legacy.Pixels[x, y], current.Pixels[x][y]);
+                }
+            }
         }
     }
 }
