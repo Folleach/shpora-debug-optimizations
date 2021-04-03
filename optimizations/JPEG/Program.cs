@@ -15,14 +15,15 @@ namespace JPEG
 	class Program
 	{
 		const int CompressionQuality = 70;
-
+		const string contentPath = "C:\\ImageContent";
+		
 		static void Main(string[] args)
 		{
 			try
 			{
 				Console.WriteLine(IntPtr.Size == 8 ? "64-bit version" : "32-bit version");
 				var sw = Stopwatch.StartNew();
-				var fileName = @"sample.bmp";
+				var fileName = Path.Combine(contentPath, @"sample.bmp");
 //				var fileName = "Big_Black_River_Railroad_Bridge.bmp";
 				var compressedFileName = fileName + ".compressed." + CompressionQuality;
 				var uncompressedFileName = fileName + ".uncompressed." + CompressionQuality + ".bmp";
@@ -131,7 +132,7 @@ namespace JPEG
 
 			for(var y = 0; y < height; y++)
 				for(var x = 0; x < width; x++)
-					matrix.Pixels[yOffset + y, xOffset + x] = new Pixel(a[y, x], b[y, x], c[y, x], format);
+					matrix.Pixels[yOffset + y][xOffset + x] = new Pixel(a[y, x], b[y, x], c[y, x], format);
 		}
 
 		private static double[,] GetSubMatrix(Matrix matrix, int yOffset, int yLength, int xOffset, int xLength, Func<Pixel, double> componentSelector)
@@ -139,7 +140,7 @@ namespace JPEG
 			var result = new double[yLength, xLength];
 			for(var j = 0; j < yLength; j++)
 				for(var i = 0; i < xLength; i++)
-					result[j, i] = componentSelector(matrix.Pixels[yOffset + j, xOffset + i]);
+					result[j, i] = componentSelector(matrix.Pixels[yOffset + j][xOffset + i]);
 			return result;
 		}
 

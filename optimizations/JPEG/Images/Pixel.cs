@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace JPEG.Images
 {
-    public class Pixel
+    public struct Pixel
     {
         private static readonly HashSet<PixelFormat> SupportFormats = new HashSet<PixelFormat>(new[] { PixelFormat.RGB, PixelFormat.YCbCr });
         private readonly PixelFormat format;

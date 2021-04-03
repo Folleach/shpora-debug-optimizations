@@ -6,7 +6,7 @@ namespace JPEG.Images
 {
     class Matrix
     {
-        public readonly Pixel[,] Pixels;
+        public readonly Pixel[][] Pixels;
         public readonly int Height;
         public readonly int Width;
 				
@@ -15,10 +15,17 @@ namespace JPEG.Images
             Height = height;
             Width = width;
 			
-            Pixels = new Pixel[height,width];
-            for(var i = 0; i< height; ++i)
-            for(var j = 0; j< width; ++j)
-                Pixels[i, j] = new Pixel(0, 0, 0, PixelFormat.RGB);
+            Pixels = new Pixel[height][];
+            for (var i = 0; i < height; ++i)
+            {
+                Pixel[] participant = Pixels[i] = new Pixel[width];
+                for(var j = 0; j< width; ++j)
+                    participant[j] = new Pixel(0, 0, 0, PixelFormat.RGB);
+            }
+        }
+        
+        public Matrix(Bitmap bmp)
+        {
         }
 
         public static unsafe explicit operator Matrix(Bitmap bmp)
@@ -40,7 +47,7 @@ namespace JPEG.Images
                     var b = *(row++);
                     var g = *(row++);
                     var r = *(row++);
-                    matrix.Pixels[j, i] = new Pixel(r, g, b, PixelFormat.RGB);
+                    matrix.Pixels[j][i] = new Pixel(r, g, b, PixelFormat.RGB);
                 }
             }
 
@@ -66,7 +73,7 @@ namespace JPEG.Images
             {
                 for(var i = 0; i < bmp.Width; i++)
                 {
-                    var pixel = matrix.Pixels[j, i];
+                    var pixel = matrix.Pixels[j][i];
                     bmp.SetPixel(i, j, Color.FromArgb(ToByte(pixel.R), ToByte(pixel.G), ToByte(pixel.B)));
                 }
             }
