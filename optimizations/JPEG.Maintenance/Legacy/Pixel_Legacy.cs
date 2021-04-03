@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
+using JPEG.Images;
 using System.Linq;
 
-namespace JPEG.Images
+namespace JPEG.Maintenance.Legacy
 {
-    public class Pixel
+    public class Pixel_Legacy
     {
-        private static readonly HashSet<PixelFormat> SupportFormats = new HashSet<PixelFormat>(new[] { PixelFormat.RGB, PixelFormat.YCbCr });
         private readonly PixelFormat format;
 
-        public Pixel(double firstComponent, double secondComponent, double thirdComponent, PixelFormat pixelFormat)
+        public Pixel_Legacy(double firstComponent, double secondComponent, double thirdComponent, PixelFormat pixelFormat)
         {
-            if (!SupportFormats.Contains(pixelFormat))
+            if (!new[]{PixelFormat.RGB, PixelFormat.YCbCr}.Contains(pixelFormat))
                 throw new FormatException("Unknown pixel format: " + pixelFormat);
             format = pixelFormat;
             if (pixelFormat == PixelFormat.RGB)
