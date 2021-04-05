@@ -20,7 +20,7 @@ namespace JPEG.Images
             {
                 Pixel[] participant = Pixels[i] = new Pixel[width];
                 for(var j = 0; j< width; ++j)
-                    participant[j] = new Pixel(0, 0, 0, PixelFormat.RGB);
+                    participant[j] = new Pixel();
             }
         }
         
@@ -47,7 +47,7 @@ namespace JPEG.Images
                     var b = *(row++);
                     var g = *(row++);
                     var r = *(row++);
-                    matrix.Pixels[j][i] = new Pixel(r, g, b, PixelFormat.RGB);
+                    matrix.Pixels[j][i].SetPixel(r, g, b, PixelFormat.RGB);
                 }
             }
 

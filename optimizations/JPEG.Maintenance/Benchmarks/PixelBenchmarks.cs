@@ -16,7 +16,7 @@ namespace JPEG.Maintenance.Benchmarks
         [Benchmark]
         public void Constructor()
         {
-            new Pixel(0, 0, 0, PixelFormat.RGB);
+            new Pixel().SetPixel(0, 0, 0, PixelFormat.RGB);
         }
     }
 }

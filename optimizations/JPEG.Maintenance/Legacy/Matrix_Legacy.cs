@@ -17,7 +17,7 @@ namespace JPEG.Maintenance.Legacy
             Pixels = new Pixel[height,width];
             for(var i = 0; i< height; ++i)
             for(var j = 0; j< width; ++j)
-                Pixels[i, j] = new Pixel(0, 0, 0, PixelFormat.RGB);
+                Pixels[i, j].SetPixel(0, 0, 0, PixelFormat.RGB);
         }
 
         public static explicit operator Matrix_Legacy(Bitmap bmp)
@@ -31,7 +31,7 @@ namespace JPEG.Maintenance.Legacy
                 for(var i = 0; i < width; i++)
                 {
                     var pixel = bmp.GetPixel(i, j);
-                    matrix.Pixels[j, i] = new Pixel(pixel.R, pixel.G, pixel.B, PixelFormat.RGB);
+                    matrix.Pixels[j, i].SetPixel(pixel.R, pixel.G, pixel.B, PixelFormat.RGB);
                 }
             }
 
