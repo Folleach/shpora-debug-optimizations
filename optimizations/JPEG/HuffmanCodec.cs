@@ -153,20 +153,35 @@ namespace JPEG
 
 		private static HuffmanNode BuildHuffmanTree(int[] frequences)
 		{
-			var nodes = GetNodes(frequences);
+			var n = GetNodes(frequences);
+			n.Sort((a, b) => b.Frequency - a.Frequency);
+			var nodes = new LinkedList<HuffmanNode>(n);
 			
-			while(nodes.Count() > 1)
+			while(nodes.Count > 1)
 			{
-				var firstMin = nodes.MinOrDefault(node => node.Frequency);
-				nodes = nodes.Without(firstMin);
-				var secondMin = nodes.MinOrDefault(node => node.Frequency);
-				nodes = nodes.Without(secondMin);
-				nodes = nodes.Concat(new HuffmanNode {Frequency = firstMin.Frequency + secondMin.Frequency, Left = secondMin, Right = firstMin }.ToEnumerable());
+				var firstMin = nodes.Last;
+				nodes.RemoveLast();
+				var secondMin = nodes.Last;
+				nodes.RemoveLast();
+				var currentNode = new HuffmanNode
+				{
+					Frequency = firstMin.Value.Frequency + secondMin.Value.Frequency,
+					Left = secondMin.Value,
+					Right = firstMin.Value
+				};
+				var findNode = nodes.Last;
+				while (findNode != null && findNode.Value.Frequency < currentNode.Frequency)
+					findNode = findNode.Previous;
+
+				if (findNode == null)
+					nodes.AddLast(currentNode);
+				else
+					nodes.AddAfter(findNode, currentNode);
 			}
 			return nodes.First();
 		}
 
-		private static IEnumerable<HuffmanNode> GetNodes(int[] frequences)
+		private static List<HuffmanNode> GetNodes(int[] frequences)
 		{
 			var nodes = new List<HuffmanNode>();
 			for (var i = 0; i < byte.MaxValue + 1; i++)
