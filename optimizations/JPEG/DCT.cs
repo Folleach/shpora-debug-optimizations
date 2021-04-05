@@ -8,7 +8,7 @@ namespace JPEG
 	{
 		private static readonly double OneDivSqrtTwo = 1 / Math.Sqrt(2);
 		
-		public static double[,] DCT2D(double[,] input)
+		public static double[,] DCT2D(double[,] input, int subX, int subY)
 		{
 			var height = input.GetLength(0);
 			var width = input.GetLength(1);
@@ -19,10 +19,15 @@ namespace JPEG
 				for (var v = 0; v < height; v++)
 				{
 					var sum = 0d;
-					for (var x = 0; x < width; x++)
+					for (var x = 0; x < width; x += subX)
 					{
-						for (var y = 0; y < height; y++)
-							sum += BasisFunction(input[x, y], u, v, x, y, height, width);
+						for (var y = 0; y < height; y += subY)
+						{
+							var b = Math.Cos(((2d * x + 1d) * u * Math.PI) / (2 * width));
+							var c = Math.Cos(((2d * y + 1d) * v * Math.PI) / (2 * height));
+
+							sum += input[x, y] * b * c;
+						}
 					}
 
 					coeffs[u, v] = sum * Beta(height, width) * Alpha(u) * Alpha(v);
@@ -32,7 +37,7 @@ namespace JPEG
 			return coeffs;
 		}
 
-		public static void IDCT2D(double[,] coeffs, double[,] output)
+		public static void IDCT2D(double[,] coeffs, double[,] output, int subX, int subY)
 		{
 			var height = coeffs.GetLength(1);
 			var width = coeffs.GetLength(0);
@@ -41,9 +46,9 @@ namespace JPEG
 				for(var y = 0; y < width; y++)
 				{
 					var sum = 0d;
-					for (var u = 0; u < height; u++)
+					for (var u = 0; u < height; u += subX)
 					{
-						for (var v = 0; v < width; v++)
+						for (var v = 0; v < width; v += subY)
 						{
 							sum += BasisFunction(coeffs[u, v], u, v, x, y, width, height)
 							       * (u == 0 ? OneDivSqrtTwo : 1)

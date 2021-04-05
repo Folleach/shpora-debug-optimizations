@@ -27,7 +27,7 @@ namespace JPEG.Maintenance.Benchmarks
         [Benchmark]
         public void DCT2D()
         {
-            DCT.DCT2D(input);
+            DCT.DCT2D(input, 1, 1);
         }
         
         [Benchmark]

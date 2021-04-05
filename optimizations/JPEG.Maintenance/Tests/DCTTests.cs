@@ -24,7 +24,7 @@ namespace JPEG.Maintenance.Tests
             };
             
             var legacyOutput = DCT_Legacy.DCT2D(input);
-            var output = DCT.DCT2D(input);
+            var output = DCT.DCT2D(input, 1, 1);
 
             output.Should().BeEquivalentTo(legacyOutput);
         }
@@ -48,7 +48,7 @@ namespace JPEG.Maintenance.Tests
             var output = new double[input.GetLength(0), input.GetLength(1)];
             
             DCT_Legacy.IDCT2D(input, legacyOutput);
-            DCT.IDCT2D(input, output);
+            DCT.IDCT2D(input, output, 1, 1);
 
             output.Should().BeEquivalentTo(legacyOutput);
         }

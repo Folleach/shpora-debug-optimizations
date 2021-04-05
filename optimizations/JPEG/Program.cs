@@ -61,16 +61,19 @@ namespace JPEG
 		private static CompressedImage Compress(Matrix matrix, int quality = 50)
 		{
 			var allQuantizedBytes = new List<byte>();
+			var selectors = new Func<Pixel, double>[] {p => p.Y, p => p.Cb, p => p.Cr};
 
 			for(var y = 0; y < matrix.Height; y += DCTSize)
 			{
 				for(var x = 0; x < matrix.Width; x += DCTSize)
 				{
-					foreach (var selector in new Func<Pixel, double>[] {p => p.Y, p => p.Cb, p => p.Cr})
+					for (var i = 0; i < selectors.Length; i++)
 					{
-						var subMatrix = GetSubMatrix(matrix, y, DCTSize, x, DCTSize, selector);
+						var subMatrix = GetSubMatrix(matrix, y, DCTSize, x, DCTSize, selectors[i]);
 						ShiftMatrixValues(subMatrix, -128);
-						var channelFreqs = DCT.DCT2D(subMatrix);
+						var channelFreqs = DCT.DCT2D(subMatrix,
+							i != 0 ? 4 : 1,
+							i != 0 ? 2 : 1);
 						var quantizedFreqs = Quantize(channelFreqs, quality);
 						var quantizedBytes = ZigZagScan(quantizedFreqs);
 						allQuantizedBytes.AddRange(quantizedBytes);
@@ -98,14 +101,18 @@ namespace JPEG
 						var _y = new double[DCTSize, DCTSize];
 						var cb = new double[DCTSize, DCTSize];
 						var cr = new double[DCTSize, DCTSize];
-						foreach (var channel in new []{_y, cb, cr})
+						var channels = new[] {_y, cb, cr};
+						
+						for (var i = 0; i < channels.Length; i++)
 						{
 							var quantizedBytes = new byte[DCTSize * DCTSize];
 							allQuantizedBytes.ReadAsync(quantizedBytes, 0, quantizedBytes.Length).Wait();
 							var quantizedFreqs = ZigZagUnScan(quantizedBytes);
 							var channelFreqs = DeQuantize(quantizedFreqs, image.Quality);
-							DCT.IDCT2D(channelFreqs, channel);
-							ShiftMatrixValues(channel, 128);
+							DCT.IDCT2D(channelFreqs, channels[i],
+								i != 0 ? 4 : 1,
+								i != 0 ? 2 : 1);
+							ShiftMatrixValues(channels[i], 128);
 						}
 						SetPixels(result, _y, cb, cr, PixelFormat.YCbCr, y, x);
 					}
