@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 
 namespace JPEG.Images
@@ -22,10 +21,6 @@ namespace JPEG.Images
                 for(var j = 0; j< width; ++j)
                     participant[j] = new Pixel();
             }
-        }
-        
-        public Matrix(Bitmap bmp)
-        {
         }
 
         public static unsafe explicit operator Matrix(Bitmap bmp)
@@ -51,44 +46,44 @@ namespace JPEG.Images
                 }
             }
 
-            // for(var j = 0; j < height; j++)
-            // {
-            //     for(var i = 0; i < width; i++)
-            //     {
-            //         var pixel = bmp.GetPixel(i, j);
-            //         matrix.Pixels[j, i] = new Pixel(pixel.R, pixel.G, pixel.B, PixelFormat.RGB);
-            //     }
-            // }
-            
             bmp.UnlockBits(bitmapData);
 
             return matrix;
         }
 
-        public static explicit operator Bitmap(Matrix matrix)
+        public static unsafe explicit operator Bitmap(Matrix matrix)
         {
             var bmp = new Bitmap(matrix.Width, matrix.Height);
 
-            for(var j = 0; j < bmp.Height; j++)
+            var bitmapData = bmp.LockBits(
+                new Rectangle(0, 0, bmp.Width, bmp.Height),
+                ImageLockMode.WriteOnly,
+                System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            
+            for (var j = 0; j < matrix.Height; j++)
             {
-                for(var i = 0; i < bmp.Width; i++)
+                var row = (byte*)bitmapData.Scan0 + (j * bitmapData.Stride);
+                for (var i = 0; i < matrix.Width; i++)
                 {
-                    var pixel = matrix.Pixels[j][i];
-                    bmp.SetPixel(i, j, Color.FromArgb(ToByte(pixel.R), ToByte(pixel.G), ToByte(pixel.B)));
+                    *(row++) = ToByte(matrix.Pixels[j][i].B);
+                    *(row++) = ToByte(matrix.Pixels[j][i].G);
+                    *(row++) = ToByte(matrix.Pixels[j][i].R);
                 }
             }
+            
+            bmp.UnlockBits(bitmapData);
 
             return bmp;
         }
 
-        public static int ToByte(double d)
+        private static byte ToByte(double d)
         {
             var val = (int) d;
             if (val > byte.MaxValue)
                 return byte.MaxValue;
             if (val < byte.MinValue)
                 return byte.MinValue;
-            return val;
+            return (byte)val;
         }
     }
 }
