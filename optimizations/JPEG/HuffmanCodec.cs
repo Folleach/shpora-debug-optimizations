@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -181,7 +182,8 @@ namespace JPEG
 		private static int[] CalcFrequences(IEnumerable<byte> data)
 		{
 			var result = new int[byte.MaxValue + 1];
-			Parallel.ForEach(data, b => Interlocked.Increment(ref result[b]));
+			foreach (var item in data)
+				++result[item];
 			return result;
 		}
 	}
