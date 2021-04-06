@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace JPEG.Utilities
 {
-	static class IEnumerableExtensions
+	internal static class IEnumerableExtensions
 	{
 		public static T MinOrDefault<T>(this IEnumerable<T> enumerable, Func<T, int> selector)
 		{

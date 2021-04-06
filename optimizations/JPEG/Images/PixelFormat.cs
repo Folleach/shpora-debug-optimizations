@@ -1,6 +1,6 @@
 ﻿namespace JPEG.Images
 {
-    public enum PixelFormat
+    public enum PixelFormat : byte
     {
         RGB = 1,
         YCbCr

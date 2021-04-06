@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using JPEG.Utilities;
 
 namespace JPEG
 {
-	class HuffmanNode
+	internal class HuffmanNode
 	{
 		public byte? LeafLabel { get; set; }
 		public int Frequency { get; set; }
@@ -39,7 +35,7 @@ namespace JPEG
 		}
 	}
 
-	class BitsBuffer
+	internal class BitsBuffer
 	{
 		private List<byte> buffer = new List<byte>();
 		private BitsWithLength unfinishedBits = new BitsWithLength();
@@ -77,7 +73,7 @@ namespace JPEG
 		}
 	}
 
-	class HuffmanCodec
+	internal class HuffmanCodec
 	{
 		public static byte[] Encode(IEnumerable<byte> data, out Dictionary<BitsWithLength, byte> decodeTable, out long bitsCount)
 		{

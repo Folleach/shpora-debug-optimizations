@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using FluentAssertions;
 using NUnit.Framework;
 using JPEG.Images;
 using JPEG.Maintenance.Legacy;
@@ -38,14 +37,14 @@ namespace JPEG.Maintenance.Tests
             var current = (Matrix) image;
             var legacy = (Matrix_Legacy) image;
 
-            Assert.AreEqual(legacy.Pixels.GetLength(0), current.Pixels.Length);
-            Assert.AreEqual(legacy.Pixels.GetLength(1), current.Pixels[0].Length);
+            Assert.AreEqual(legacy.Pixels.GetLength(0), current.Pixels.GetLength(0));
+            Assert.AreEqual(legacy.Pixels.GetLength(1), current.Pixels.GetLength(1));
             
             for (var x = 0; x < current.Height; x++)
             {
                 for (var y = 0; y < current.Width; y++)
                 {
-                    Assert.AreEqual(legacy.Pixels[x, y], current.Pixels[x][y]);
+                    Assert.AreEqual(legacy.Pixels[x, y], current.Pixels[x, y]);
                 }
             }
         }

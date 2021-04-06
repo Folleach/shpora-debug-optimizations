@@ -3,9 +3,9 @@ using System.Drawing.Imaging;
 
 namespace JPEG.Images
 {
-    class Matrix
+    internal class Matrix
     {
-        public readonly Pixel[][] Pixels;
+        public readonly Pixel[,] Pixels;
         public readonly int Height;
         public readonly int Width;
 				
@@ -14,13 +14,7 @@ namespace JPEG.Images
             Height = height;
             Width = width;
 			
-            Pixels = new Pixel[height][];
-            for (var i = 0; i < height; ++i)
-            {
-                Pixel[] participant = Pixels[i] = new Pixel[width];
-                for(var j = 0; j< width; ++j)
-                    participant[j] = new Pixel();
-            }
+            Pixels = new Pixel[height, width];
         }
 
         public static unsafe explicit operator Matrix(Bitmap bmp)
@@ -42,7 +36,7 @@ namespace JPEG.Images
                     var b = *(row++);
                     var g = *(row++);
                     var r = *(row++);
-                    matrix.Pixels[j][i].SetPixel(r, g, b, PixelFormat.RGB);
+                    matrix.Pixels[j, i].SetPixel(r, g, b, PixelFormat.RGB);
                 }
             }
 
@@ -65,9 +59,9 @@ namespace JPEG.Images
                 var row = (byte*)bitmapData.Scan0 + (j * bitmapData.Stride);
                 for (var i = 0; i < matrix.Width; i++)
                 {
-                    *(row++) = ToByte(matrix.Pixels[j][i].B);
-                    *(row++) = ToByte(matrix.Pixels[j][i].G);
-                    *(row++) = ToByte(matrix.Pixels[j][i].R);
+                    *(row++) = ToByte(matrix.Pixels[j, i].B);
+                    *(row++) = ToByte(matrix.Pixels[j, i].G);
+                    *(row++) = ToByte(matrix.Pixels[j, i].R);
                 }
             }
             
