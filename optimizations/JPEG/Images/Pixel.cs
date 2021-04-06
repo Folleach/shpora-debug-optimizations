@@ -15,9 +15,9 @@ namespace JPEG.Images
             SetPixel(firstComponent, secondComponent, thirdComponent, pixelFormat);
         }
 
-        private double first;
-        private double second;
-        private double third;
+        private byte first;
+        private byte second;
+        private byte third;
 
         public double R => format == PixelFormat.RGB ? first : (298.082 * first + 408.583 * third) / 256.0 - 222.921;
         public double G => format == PixelFormat.RGB ? second : (298.082 * first - 100.291 * second - 208.120 * third) / 256.0 + 135.576;
@@ -33,9 +33,9 @@ namespace JPEG.Images
             if (!SupportFormats.Contains(pixelFormat))
                 throw new FormatException("Unknown pixel format: " + pixelFormat);
             format = pixelFormat;
-            first = firstComponent;
-            second = secondComponent;
-            third = thirdComponent;
+            first = (byte)firstComponent;
+            second = (byte)secondComponent;
+            third = (byte)thirdComponent;
         }
     }
 }

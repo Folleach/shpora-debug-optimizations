@@ -50,7 +50,9 @@ namespace JPEG
 					{
 						for (var v = 0; v < width; v += subY)
 						{
-							sum += BasisFunction(coeffs[u, v], u, v, x, y, width, height)
+							sum += coeffs[u, v]
+							       * Math.Cos(((2d * x + 1d) * u * Math.PI) / (2 * height))
+							       * Math.Cos(((2d * y + 1d) * v * Math.PI) / (2 * width))
 							       * (u == 0 ? OneDivSqrtTwo : 1)
 							       * (v == 0 ? OneDivSqrtTwo : 1);
 						}
