@@ -4,8 +4,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using JPEG.Images;
+using JPEG.Utilities;
 using PixelFormat = JPEG.Images.PixelFormat;
 
 [assembly: InternalsVisibleTo("JPEG.Maintenance")]
@@ -14,8 +18,9 @@ namespace JPEG
 {
 	class Program
 	{
-		const int CompressionQuality = 70;
-		const string contentPath = "C:\\ImageContent";
+		private static readonly int CompressionQuality = 70;
+		private static readonly int NumberOfTasks = 6;
+		private static readonly string contentPath = "C:\\ImageContent";
 		
 		static void Main(string[] args)
 		{
@@ -62,24 +67,32 @@ namespace JPEG
 		{
 			var allQuantizedBytes = new List<byte>();
 			var selectors = new Func<Pixel, double>[] {p => p.Y, p => p.Cb, p => p.Cr};
-
-			for(var y = 0; y < matrix.Height; y += DCTSize)
+			
+			var tasks = new FuncTaskContainer<Dictionary<int, List<byte>>>(NumberOfTasks, (taskId, result) =>
 			{
-				for(var x = 0; x < matrix.Width; x += DCTSize)
+				for(var y = DCTSize * taskId; y < matrix.Height; y += DCTSize * NumberOfTasks)
 				{
-					for (var i = 0; i < selectors.Length; i++)
+					var strip = result[y] = new List<byte>();
+					for(var x = 0; x < matrix.Width; x += DCTSize)
 					{
-						var subMatrix = GetSubMatrix(matrix, y, DCTSize, x, DCTSize, selectors[i]);
-						ShiftMatrixValues(subMatrix, -128);
-						var channelFreqs = DCT.DCT2D(subMatrix,
-							i != 0 ? 4 : 1,
-							i != 0 ? 2 : 1);
-						var quantizedFreqs = Quantize(channelFreqs, quality);
-						var quantizedBytes = ZigZagScan(quantizedFreqs);
-						allQuantizedBytes.AddRange(quantizedBytes);
+						for (var i = 0; i < selectors.Length; i++)
+						{
+							var subMatrix = GetSubMatrix(matrix, y, DCTSize, x, DCTSize, selectors[i]);
+							ShiftMatrixValues(subMatrix, -128);
+							var channelFreqs = DCT.DCT2D(subMatrix,
+								i != 0 ? 4 : 1,
+								i != 0 ? 2 : 1);
+							var quantizedFreqs = Quantize(channelFreqs, quality);
+							var quantizedBytes = ZigZagScan(quantizedFreqs);
+							strip.AddRange(quantizedBytes);
+						}
 					}
 				}
-			}
+			});
+			var results = tasks.WaitRunAll();
+			var point = 0;
+			for (var i = 0; i < matrix.Height; i += DCTSize)
+				allQuantizedBytes.AddRange(results[(point++) % NumberOfTasks][i]);
 
 			long bitsCount;
 			Dictionary<BitsWithLength, byte> decodeTable;
@@ -91,32 +104,43 @@ namespace JPEG
 		private static Matrix Uncompress(CompressedImage image)
 		{
 			var result = new Matrix(image.Height, image.Width);
+			
 			using (var allQuantizedBytes =
 				new MemoryStream(HuffmanCodec.Decode(image.CompressedBytes, image.DecodeTable, image.BitsCount)))
 			{
-				for (var y = 0; y < image.Height; y += DCTSize)
+				var tasks = new ActionTaskContainer<byte[]>(
+					new QuantizedSource(NumberOfTasks, allQuantizedBytes, DCTSize), 
+					(taskId, getData) =>
 				{
-					for (var x = 0; x < image.Width; x += DCTSize)
+					var readIndex = -1;
+					for (var y = 0; y < image.Height; y += DCTSize)
 					{
 						var _y = new double[DCTSize, DCTSize];
 						var cb = new double[DCTSize, DCTSize];
 						var cr = new double[DCTSize, DCTSize];
 						var channels = new[] {_y, cb, cr};
-						
-						for (var i = 0; i < channels.Length; i++)
+						for (var x = 0; x < image.Width; x += DCTSize)
 						{
-							var quantizedBytes = new byte[DCTSize * DCTSize];
-							allQuantizedBytes.ReadAsync(quantizedBytes, 0, quantizedBytes.Length).Wait();
-							var quantizedFreqs = ZigZagUnScan(quantizedBytes);
-							var channelFreqs = DeQuantize(quantizedFreqs, image.Quality);
-							DCT.IDCT2D(channelFreqs, channels[i],
-								i != 0 ? 4 : 1,
-								i != 0 ? 2 : 1);
-							ShiftMatrixValues(channels[i], 128);
+							readIndex = (readIndex + 1) % NumberOfTasks;
+							if (readIndex != taskId)
+								continue;
+
+							for (var i = 0; i < channels.Length; i++)
+							{
+								var quantizedBytes = getData();
+								var quantizedFreqs = ZigZagUnScan(quantizedBytes);
+								var channelFreqs = DeQuantize(quantizedFreqs, image.Quality);
+								DCT.IDCT2D(channelFreqs, channels[i],
+									i != 0 ? 4 : 1,
+									i != 0 ? 2 : 1);
+								ShiftMatrixValues(channels[i], 128);
+							}
+							
+							SetPixels(result, _y, cb, cr, PixelFormat.YCbCr, y, x);
 						}
-						SetPixels(result, _y, cb, cr, PixelFormat.YCbCr, y, x);
 					}
-				}
+				});
+				tasks.WaitRunAll();
 			}
 
 			return result;
