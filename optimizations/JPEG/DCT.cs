@@ -28,7 +28,10 @@ namespace JPEG
 						}
 					}
 
-					coeffs[u, v] = sum * Beta(height, width) * Alpha(u) * Alpha(v);
+					coeffs[u, v] = sum
+					               * (1d / width + 1d / height)
+					               * (u == 1 ? OneDivSqrtTwo : 1)
+					               * (v == 1 ? OneDivSqrtTwo : 1);
 				}
 			}
 
